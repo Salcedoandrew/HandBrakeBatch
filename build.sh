@@ -13,7 +13,7 @@ rm -rf "$APP"; mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 lipo -create "${BINS[@]}" -output "$APP/Contents/MacOS/HandBrake Batch"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp Resources/YouTubeRenders.json "$APP/Contents/Resources/"
-[ -f Resources/AppIcon.icns ] && cp Resources/AppIcon.icns "$APP/Contents/Resources/"
+cp assets/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 codesign --force --deep -s - "$APP"
 echo "Built $APP ($(lipo -archs "$APP/Contents/MacOS/HandBrake Batch"))"
 if [ "${1:-}" = "--install" ]; then

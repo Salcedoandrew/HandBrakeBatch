@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/logo.png" alt="HandBrake Batch" width="256"></p>
+
 # HandBrake Batch
 
 A native macOS (Swift/SwiftUI) rewrite of [HandBrakeBatch](https://github.com/taglia/handbrakebatch): drop a pile of videos on the window and convert them all with HandBrake.

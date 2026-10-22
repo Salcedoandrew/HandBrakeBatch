@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1 (2026-10-22)
+
+- New app icon.
+
 ## 1.2.0 (2026-10-22)
 
 - The "YouTube Renders (StepByClick)" preset is now about 1.4 times faster. It uses x264's "medium" speed setting instead of "slow". In testing the files were the same size and looked the same. All other settings are unchanged.
