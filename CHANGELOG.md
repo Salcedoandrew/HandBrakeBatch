@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0 (2026-10-22)
+
+- The "YouTube Renders (StepByClick)" preset is now about 1.4 times faster. It uses x264's "medium" speed setting instead of "slow". In testing the files were the same size and looked the same. All other settings are unchanged.
+- New preset "YouTube Renders – Fast (Hardware)". It uses the Mac's built-in hardware video encoder, so it is much faster and makes smaller files. Quality is close to the regular preset, but the regular one is still better for very detailed or grainy video.
+- Each finished file now shows how much space it saved, for example "Saved 1.2 GB (64%)", or "Grew by …" if the new file is bigger.
+- When a batch finishes, the window and the notification show a total, for example "Batch done: 12 files, saved 8.4 GB (58%)".
+- Fixed: adding two files with the same name no longer makes them write to the same output file.
+
 ## 1.1.0 (2026-10-22)
 
 Tuned for Intel Macs as well as Apple Silicon, still as one app that runs on both.

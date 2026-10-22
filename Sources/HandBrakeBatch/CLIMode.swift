@@ -35,7 +35,7 @@ enum CLIMode {
             q.concurrency = Hardware.defaultConcurrency(for: preset)
             for f in files {
                 let dir = outDir ?? (f as NSString).deletingLastPathComponent
-                q.add(Job(input: f, output: AppModel.outputPath(for: f, dir: dir, ext: "mp4"), preset: preset,
+                q.add(Job(input: f, output: AppModel.outputPath(for: f, dir: dir, ext: "mp4", reserved: Set(q.jobs.map(\.output))), preset: preset,
                           audioLanguages: AppModel.langs(audio), subtitleLanguages: AppModel.langs(subs), preserveTimestamps: true))
             }
             var last = -1
@@ -48,6 +48,7 @@ enum CLIMode {
             q.onAllFinished = {
                 timer.invalidate()
                 for j in q.jobs { print("\(j.status.rawValue): \(j.fileName) -> \(j.output) [\(j.message)] log: \(q.logURL(j).path)") }
+                if let s = q.batchSummary { print(s) }
                 try? FileManager.default.removeItem(at: state)
                 exit(q.jobs.allSatisfy { $0.status == .done } ? 0 : 1)
             }

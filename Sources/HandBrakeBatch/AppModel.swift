@@ -73,17 +73,17 @@ final class AppModel: ObservableObject {
             } else { files.append(u) }
         }
         for f in files {
-            queue.add(Job(input: f.path, output: Self.outputPath(for: f.path, dir: outputDir, ext: outputExt), preset: preset,
+            queue.add(Job(input: f.path, output: Self.outputPath(for: f.path, dir: outputDir, ext: outputExt, reserved: Set(queue.jobs.filter { $0.status != .done }.map(\.output))), preset: preset,
                           audioLanguages: Self.langs(audioLangs), subtitleLanguages: Self.langs(subtitleLangs),
                           preserveTimestamps: preserveTimestamps))
         }
     }
 
-    static func outputPath(for input: String, dir: String, ext: String) -> String {
+    static func outputPath(for input: String, dir: String, ext: String, reserved: Set<String> = []) -> String {
         let base = ((input as NSString).lastPathComponent as NSString).deletingPathExtension
         var candidate = (dir as NSString).appendingPathComponent("\(base).\(ext)")
         var n = 1
-        while FileManager.default.fileExists(atPath: candidate) || candidate == input {
+        while FileManager.default.fileExists(atPath: candidate) || candidate == input || reserved.contains(candidate) {
             candidate = (dir as NSString).appendingPathComponent("\(base) (\(n)).\(ext)"); n += 1
         }
         return candidate

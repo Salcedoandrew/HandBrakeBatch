@@ -15,6 +15,13 @@ struct Job: Identifiable, Codable, Equatable {
     var progress: Double = 0
     var message: String = ""
     var attempts: Int = 0
+    var inputBytes: Int64?
+    var outputBytes: Int64?
+    /// "Saved 1.2 GB (64%)" or "Grew by 10 MB (5%)" once the job is done.
+    var savingsText: String? {
+        guard status == .done, let i = inputBytes, let o = outputBytes else { return nil }
+        return Savings.text(input: i, output: o)
+    }
     var fileName: String { (input as NSString).lastPathComponent }
     var tempOutput: String {
         let dir = (output as NSString).deletingLastPathComponent
@@ -22,6 +29,17 @@ struct Job: Identifiable, Codable, Equatable {
         return (dir as NSString).appendingPathComponent(".\(name).\(id.uuidString.prefix(8)).hbbpart")
     }
     static func == (a: Job, b: Job) -> Bool { a.id == b.id && a.status == b.status && a.progress == b.progress && a.message == b.message }
+}
+
+enum Savings {
+    static func format(_ b: Int64) -> String {
+        let f = ByteCountFormatter(); f.countStyle = .file; return f.string(fromByteCount: b)
+    }
+    static func text(input: Int64, output: Int64) -> String {
+        let diff = input - output
+        let pct = input > 0 ? Int((Double(abs(diff)) / Double(input) * 100).rounded()) : 0
+        return diff >= 0 ? "Saved \(format(diff)) (\(pct)%)" : "Grew by \(format(-diff)) (\(pct)%)"
+    }
 }
 
 struct QueueSnapshot: Codable { var jobs: [Job]; var processing: Bool; var concurrency: Int }
@@ -193,7 +211,23 @@ final class QueueManager: ObservableObject {
             keep[.creationDate] = attrs[.creationDate]; keep[.modificationDate] = attrs[.modificationDate]
             try? fm.setAttributes(keep, ofItemAtPath: job.output)
         }
-        finish(job, ok: true, msg: "Done")
+        let inBytes = (try? fm.attributesOfItem(atPath: job.input)[.size] as? NSNumber)?.int64Value
+        let outBytes = (try? fm.attributesOfItem(atPath: job.output)[.size] as? NSNumber)?.int64Value
+        if let i = jobs.firstIndex(where: { $0.id == job.id }) { jobs[i].inputBytes = inBytes; jobs[i].outputBytes = outBytes }
+        var msg = "Done"
+        if let a = inBytes, let b = outBytes { msg = Savings.text(input: a, output: b) }
+        finish(job, ok: true, msg: msg)
+    }
+
+    /// "Batch done: 12 files, saved 8.4 GB (58%)" over the finished jobs in the queue.
+    var batchSummary: String? {
+        let done = jobs.filter { $0.status == .done && $0.inputBytes != nil && $0.outputBytes != nil }
+        guard !done.isEmpty else { return nil }
+        let i = done.reduce(Int64(0)) { $0 + $1.inputBytes! }, o = done.reduce(Int64(0)) { $0 + $1.outputBytes! }
+        let failed = jobs.filter { $0.status == .failed }.count
+        let s = Savings.text(input: i, output: o)
+        return "Batch done: \(done.count) file\(done.count == 1 ? "" : "s"), \(s.prefix(1).lowercased() + s.dropFirst())"
+            + (failed > 0 ? ", \(failed) failed" : "")
     }
 
     private func finish(_ job: Job, ok: Bool, msg: String, status: JobStatus? = nil) {
@@ -214,8 +248,8 @@ final class QueueManager: ObservableObject {
     private func setMessage(_ id: UUID, _ m: String) { if let i = jobs.firstIndex(where: { $0.id == id }) { jobs[i].message = m } }
 
     private func finishedAll() {
-        let done = jobs.filter { $0.status == .done }.count, failed = jobs.filter { $0.status == .failed }.count
-        if notify { Notifier.post("HandBrake Batch finished", "\(done) done, \(failed) failed") }
+        let failed = jobs.filter { $0.status == .failed }.count
+        if notify { Notifier.post("HandBrake Batch finished", batchSummary ?? "\(failed) failed") }
         onAllFinished?()
         if sleepWhenDone {
             let p = Process(); p.executableURL = URL(fileURLWithPath: "/usr/bin/pmset"); p.arguments = ["sleepnow"]

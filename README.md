@@ -45,11 +45,32 @@ From StepByClick, "Best HandBrake Settings for High Quality Output on PC (2026)"
 | Video encoder | H.264 (x264) | video: "Set the video codec to H.264" |
 | Frame rate | Same as source, constant | video: "frame rate to same as source … constant frame rate" |
 | Quality | RF 18 | video: "set it to 18" |
-| Encoder preset | slow | video: "Set the encoder preset to slow" |
+| Encoder preset | medium (the video says slow) | changed in 1.2.0 for speed, see below |
 | Audio bitrate | 320 kbps | video: "audio bit rate is set to 320" |
 | Container | MP4 | video: "file extension is set to MP4" |
 | Audio codec AAC, stereo mixdown | inferred (video only names the bitrate) | |
 | H.264 profile/level auto, filters, crop | inferred; everything else is from HandBrake's "HQ 1080p30 Surround" preset | |
+
+### Speed vs. quality (v1.2.0)
+Measured on the M1 Pro with a generated 30-second 1080p30 clip (synthetic, with light grain; real footage will differ).
+PSNR-Y is against the source, higher is better.
+
+| Encoder | Speed | Size | PSNR-Y |
+|---|---|---|---|
+| x264 slow (the video's choice) | ~35 fps | 20 MB | 51.3 dB |
+| **x264 medium (new default)** | ~48 fps | 20 MB | 51.2 dB |
+| x264 fast | ~55 fps | 23 MB | 51.5 dB |
+| x264 faster | ~72 fps | 21 MB | 51.7 dB |
+| **VideoToolbox H.264, quality 70 ("Fast (Hardware)")** | ~90 fps (source decode bound) | 7 MB | 51.1 dB |
+| VideoToolbox H.264, quality 65 | ~87 fps | 5 MB | 50.5 dB |
+
+- "YouTube Renders (StepByClick)" now uses x264 **medium**: about 1.4x faster than slow for the same file size and
+  practically the same quality. Everything else (RF 18, source resolution and frame rate, MP4, 320 kbps AAC) is unchanged.
+- "YouTube Renders – Fast (Hardware)" uses the Mac's hardware H.264 encoder (VideoToolbox) at constant quality 70.
+  It is the fastest option on both Macs and the files are smaller. The tradeoff: hardware encoders are less efficient than
+  x264 on difficult footage (fine detail, grain, fast motion), so pick the x264 preset when quality matters most.
+- On Intel Macs, VideoToolbox does not support constant quality, so HandBrake falls back to a 9 Mbps average bitrate
+  (two passes) on Intel Quick Sync. On the 2018 MacBook Pro this ran at ~50 fps vs ~30 fps for x264 medium on a 1080p clip.
 
 ## License
 GPL-3.0, like the original HandBrakeBatch. See LICENSE.

@@ -105,7 +105,8 @@ struct ContentView: View {
             Button("Add Files…") { addFiles() }
             Button("Clear Finished") { queue.clearFinished() }
             Spacer()
-            Text("\(queue.jobs.filter { $0.status == .done }.count)/\(queue.jobs.count) done").foregroundStyle(.secondary)
+            if let summary = queue.batchSummary, !queue.processing { Text(summary).foregroundStyle(.secondary) }
+            else { Text("\(queue.jobs.filter { $0.status == .done }.count)/\(queue.jobs.count) done").foregroundStyle(.secondary) }
             if queue.processing { Button("Pause Queue") { queue.stop() } }
             else { Button("Start") { queue.start() }.keyboardShortcut(.return).disabled(!queue.jobs.contains { $0.status == .pending }) }
         }
@@ -129,11 +130,15 @@ struct JobRow: View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(job.fileName).lineLimit(1)
-                Text("\(job.preset.name) → \((job.output as NSString).lastPathComponent) · \(job.message)")
+                Text("\(job.preset.name) → \((job.output as NSString).lastPathComponent)\(job.status == .done ? "" : " · " + job.message)")
                     .font(.caption).foregroundStyle(job.status == .failed ? .red : .secondary).lineLimit(1)
             }
             Spacer()
             if job.status == .running { ProgressView(value: job.progress).frame(width: 120) }
+            else if let saved = job.savingsText {
+                Text(saved).font(.caption.monospacedDigit())
+                    .foregroundStyle((job.outputBytes ?? 0) <= (job.inputBytes ?? 0) ? Color.green : Color.orange)
+            }
             else { Text(job.status.rawValue.capitalized).font(.caption).foregroundStyle(.secondary) }
             if job.status == .running || job.status == .pending {
                 Button { queue.cancel(job.id) } label: { Image(systemName: "xmark.circle") }.help("Cancel")
