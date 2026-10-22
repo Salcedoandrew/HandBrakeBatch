@@ -38,6 +38,15 @@ enum Hardware {
     static func defaultConcurrency(for preset: HBPreset) -> Int {
         preset.isVideoToolbox && hasHardwareHEVC ? 2 : 1
     }
+    /// Average bitrate (kbps) for hardware H.264/H.265 on Intel Macs, where constant quality is unavailable.
+    static func intelVTBitrate(height: Int) -> Int {
+        switch height {
+        case 1441...: return 35000   // 4K
+        case 1081...1440: return 18000  // 1440p
+        case 721...1080, 0: return 9500 // 1080p (and unknown)
+        default: return 5000            // 720p and below
+        }
+    }
     static func preferredPreset(in presets: [HBPreset]) -> HBPreset? {
         hasHardwareHEVC ? presets.first { $0.name == "H.265 Apple VideoToolbox 1080p" } : nil
     }

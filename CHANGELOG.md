@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.2 (2026-10-22)
+
+- On Intel Macs, the "YouTube Renders – Fast (Hardware)" preset now encodes in one pass instead of two, so each file is only processed once. It uses about 9.5 Mbps for 1080p video, and more for 1440p and 4K. Apple Silicon Macs are unchanged.
+- For any job that does run in two passes, the progress bar now goes from 0 to 100% once for the whole job, and the row says "Pass 1 of 2 (analysis)" or "Pass 2 of 2".
+
 ## 1.2.1 (2026-10-22)
 
 - New app icon.

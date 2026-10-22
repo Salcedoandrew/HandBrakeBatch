@@ -9,10 +9,12 @@ struct HBPreset: Identifiable, Hashable, Codable {
     var id: String { (importFile ?? "builtin") + "|" + name }
     var isVideoToolbox: Bool { name.localizedCaseInsensitiveContains("VideoToolbox") || encoder.contains("vt_") }
     var encoder: String = ""
+    var qualityType: Int? = nil   // VideoQualityType from JSON presets: 2 = constant quality
+    var usesConstantQuality: Bool { qualityType == 2 }
 }
 
 struct ScanTrack: Hashable { var index: Int; var language: String; var description: String }
-struct ScanResult { var duration: Double; var audio: [ScanTrack]; var subtitles: [ScanTrack] }
+struct ScanResult { var duration: Double; var audio: [ScanTrack]; var subtitles: [ScanTrack]; var height: Int = 0 }
 
 enum HandBrakeCLI {
     static var path: String? {
@@ -88,7 +90,8 @@ enum HandBrakeCLI {
                 } else if let n = item["PresetName"] as? String {
                     out.append(HBPreset(name: n, category: cat, importFile: path,
                                         description: item["PresetDescription"] as? String ?? "",
-                                        encoder: item["VideoEncoder"] as? String ?? ""))
+                                        encoder: item["VideoEncoder"] as? String ?? "",
+                                        qualityType: item["VideoQualityType"] as? Int))
                 }
             }
         }
@@ -115,31 +118,46 @@ enum HandBrakeCLI {
             let sec: Int = d["Seconds"] as? Int ?? 0
             dur = Double(h * 3600 + m * 60 + sec)
         }
-        return ScanResult(duration: dur, audio: tracks("AudioList"), subtitles: tracks("SubtitleList"))
+        let height = (title["Geometry"] as? [String: Any])?["Height"] as? Int ?? 0
+        return ScanResult(duration: dur, audio: tracks("AudioList"), subtitles: tracks("SubtitleList"), height: height)
     }
 }
 
 /// Parses HandBrakeCLI `--json` progress blocks; falls back to the classic "Encoding: ... 12.34 %" text.
+/// Multi-pass jobs report Pass/PassCount; `overall` combines all passes into one 0-100% value.
+struct ProgressUpdate { var overall: Double; var pass: Int; var passCount: Int; var passProgress: Double }
+
 struct ProgressParser {
     private var state = ""
+    private var pass = 1, passCount = 1
     private static let stateRe = try! NSRegularExpression(pattern: #""State"\s*:\s*"(\w+)""#)
     private static let progRe = try! NSRegularExpression(pattern: #""Progress"\s*:\s*([0-9.eE+-]+)"#)
-    private static let textRe = try! NSRegularExpression(pattern: #"Encoding: task \d+ of \d+, ([0-9.]+) %"#)
+    private static let passRe = try! NSRegularExpression(pattern: #""Pass"\s*:\s*(\d+)"#)
+    private static let passCountRe = try! NSRegularExpression(pattern: #""PassCount"\s*:\s*(\d+)"#)
+    private static let textRe = try! NSRegularExpression(pattern: #"Encoding: task (\d+) of (\d+), ([0-9.]+) %"#)
 
-    mutating func feed(_ s: String) -> Double? {
+    private static func last(_ re: NSRegularExpression, _ s: String, _ group: Int = 1) -> String? {
         let ns = s as NSString
-        var result: Double?
-        for m in Self.stateRe.matches(in: s, range: NSRange(location: 0, length: ns.length)) {
-            state = ns.substring(with: m.range(at: 1))
-        }
+        guard let m = re.matches(in: s, range: NSRange(location: 0, length: ns.length)).last else { return nil }
+        return ns.substring(with: m.range(at: group))
+    }
+
+    mutating func feed(_ s: String) -> ProgressUpdate? {
+        if let st = Self.last(Self.stateRe, s) { state = st }
+        var p: Double?
         if state == "WORKING" || state == "MUXING" {
-            if let m = Self.progRe.matches(in: s, range: NSRange(location: 0, length: ns.length)).last {
-                result = Double(ns.substring(with: m.range(at: 1)))
-            }
+            if let v = Self.last(Self.passRe, s).flatMap(Int.init) { pass = max(1, v) }
+            if let v = Self.last(Self.passCountRe, s).flatMap(Int.init) { passCount = max(1, v) }
+            p = Self.last(Self.progRe, s).flatMap(Double.init)
         }
-        if result == nil, let m = Self.textRe.matches(in: s, range: NSRange(location: 0, length: ns.length)).last {
-            result = (Double(ns.substring(with: m.range(at: 1))) ?? 0) / 100
+        if p == nil, let v = Self.last(Self.textRe, s, 3).flatMap(Double.init) {
+            if let t = Self.last(Self.textRe, s, 1).flatMap(Int.init) { pass = t }
+            if let c = Self.last(Self.textRe, s, 2).flatMap(Int.init) { passCount = c }
+            p = v / 100
         }
-        return result.map { min(max($0, 0), 1) }
+        guard let raw = p else { return nil }
+        let pp = min(max(raw, 0), 1)
+        let pc = max(passCount, 1), ps = min(max(pass, 1), pc)
+        return ProgressUpdate(overall: (Double(ps - 1) + pp) / Double(pc), pass: ps, passCount: pc, passProgress: pp)
     }
 }

@@ -133,6 +133,11 @@ final class QueueManager: ObservableObject {
         if let f = job.preset.importFile { a += ["--preset-import-file", f] }
         a += ["-Z", job.preset.name, "-i", job.input, "-o", job.tempOutput, "--json"]
         let ext = (job.output as NSString).pathExtension.lowercased()
+        // Intel Macs: VideoToolbox can't do constant quality, and HandBrake would fall back to a two-pass
+        // average-bitrate encode. Use one pass at a bitrate scaled to the source height instead.
+        if !Hardware.isAppleSilicon, job.preset.encoder.hasPrefix("vt_"), job.preset.usesConstantQuality {
+            a += ["-b", String(Hardware.intelVTBitrate(height: scan?.height ?? 0)), "--no-multi-pass"]
+        }
         a += ["-f", ext == "mkv" ? "av_mkv" : (ext == "webm" ? "av_webm" : "av_mp4")]
         // Language-based track selection: keep every original track whose language matches.
         // Uses HandBrake's language lists so the preset's per-track encoder settings are kept
@@ -240,9 +245,14 @@ final class QueueManager: ObservableObject {
         save(); pump()
     }
 
-    private func setProgress(_ id: UUID, _ v: Double) {
-        if let i = jobs.firstIndex(where: { $0.id == id }), jobs[i].status == .running {
-            jobs[i].progress = v; jobs[i].message = String(format: "Encoding %.1f%%", v * 100)
+    private func setProgress(_ id: UUID, _ u: ProgressUpdate) {
+        guard let i = jobs.firstIndex(where: { $0.id == id }), jobs[i].status == .running else { return }
+        jobs[i].progress = u.overall   // one 0-100% bar across all passes
+        if u.passCount > 1 {
+            let label = u.pass == 1 ? "Pass 1 of \(u.passCount) (analysis)" : "Pass \(u.pass) of \(u.passCount)"
+            jobs[i].message = String(format: "%@ %.0f%% · overall %.1f%%", label, u.passProgress * 100, u.overall * 100)
+        } else {
+            jobs[i].message = String(format: "Encoding %.1f%%", u.overall * 100)
         }
     }
     private func setMessage(_ id: UUID, _ m: String) { if let i = jobs.firstIndex(where: { $0.id == id }) { jobs[i].message = m } }
