@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.1.0 (2026-10-22)
+
+Tuned for Intel Macs as well as Apple Silicon, still as one app that runs on both.
+
+- The app now checks at startup whether it is on an Apple Silicon or Intel Mac and whether the Mac can encode HEVC video in hardware.
+- On Intel Macs that support it (such as the 2018 15-inch MacBook Pro), the hardware VideoToolbox H.265 preset is now chosen by default, just like on Apple Silicon, and is marked with ⚡.
+- By default, hardware (VideoToolbox) encodes run two at a time and software (x264/x265) encodes run one at a time, because software encoding already uses every CPU core. You can still change this.
+- The window now shows the kind of Mac, its CPU cores and threads, and whether hardware HEVC encoding is available.
+- On the 2018 MacBook Pro, running two hardware encodes at once is faster than one at a time: macOS sends one to the T2 chip's video encoder and the other to Intel Quick Sync. So two stays the default there.
+
 ## 1.0.0 (2026-10-22)
 
 First release of the native rewrite of HandBrakeBatch.

@@ -22,7 +22,7 @@ enum CLIMode {
         let cfg = (presetName, outDir, audio, subs, files)
         Task { @MainActor in
             let (presetName, outDir, audio, subs, files) = cfg
-            print(await HandBrakeCLI.version())
+            print(await HandBrakeCLI.version()); print(Hardware.summary + " · " + Hardware.cpuName)
             let presets = await AppModel.loadAllPresets()
             if argv.contains("--list-presets") {
                 for p in presets { print("[\(p.category)] \(p.name)\(p.isVideoToolbox ? "  (VideoToolbox)" : "")") }
@@ -32,7 +32,7 @@ enum CLIMode {
             let state = FileManager.default.temporaryDirectory.appendingPathComponent("hbb-cli-\(UUID().uuidString).json")
             let q = QueueManager(stateFile: state)
             q.notify = false
-            q.concurrency = preset.isVideoToolbox ? 2 : 1
+            q.concurrency = Hardware.defaultConcurrency(for: preset)
             for f in files {
                 let dir = outDir ?? (f as NSString).deletingLastPathComponent
                 q.add(Job(input: f, output: AppModel.outputPath(for: f, dir: dir, ext: "mp4"), preset: preset,

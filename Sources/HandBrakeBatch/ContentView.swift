@@ -28,7 +28,7 @@ struct ContentView: View {
         Grid(alignment: .leading, horizontalSpacing: 10, verticalSpacing: 8) {
             GridRow {
                 Text("HandBrakeCLI")
-                Text(model.version).foregroundStyle(.secondary).font(.callout.monospaced())
+                Text("\(model.version)  ·  \(Hardware.summary)").foregroundStyle(.secondary).font(.callout.monospaced())
             }
             GridRow {
                 Text("Preset")
@@ -37,13 +37,13 @@ struct ContentView: View {
                         ForEach(groupedCategories, id: \.self) { cat in
                             Section(cat) {
                                 ForEach(model.presets.filter { $0.category == cat }) { p in
-                                    Text(p.isVideoToolbox && model.isAppleSilicon ? "⚡︎ \(p.name)" : p.name).tag(p.id)
+                                    Text(p.isVideoToolbox && Hardware.hasHardwareHEVC ? "⚡︎ \(p.name)" : p.name).tag(p.id)
                                 }
                             }
                         }
                     }.labelsHidden().frame(maxWidth: 360)
-                    if let p = model.selectedPreset, p.isVideoToolbox, model.isAppleSilicon {
-                        Text("VideoToolbox: hardware encode on Apple Silicon")
+                    if let p = model.selectedPreset, p.isVideoToolbox, Hardware.hasHardwareHEVC {
+                        Text("VideoToolbox: hardware encode (\(Hardware.engineName))")
                             .font(.caption).padding(.horizontal, 6).padding(.vertical, 2)
                             .background(Color.orange.opacity(0.25), in: Capsule())
                     }

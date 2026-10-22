@@ -15,10 +15,7 @@ final class AppModel: ObservableObject {
     @AppStorage("sleepWhenDone") var sleepWhenDone = false { didSet { queue.sleepWhenDone = sleepWhenDone } }
     @AppStorage("lastPreset") var lastPreset = ""
     let queue = QueueManager()
-    let isAppleSilicon: Bool = {
-        var v: Int32 = 0; var size = MemoryLayout<Int32>.size
-        return sysctlbyname("hw.optional.arm64", &v, &size, nil, 0) == 0 && v == 1
-    }()
+    var isAppleSilicon: Bool { Hardware.isAppleSilicon }
 
     var selectedPreset: HBPreset? { presets.first { $0.id == selectedPresetID } }
 
@@ -49,7 +46,7 @@ final class AppModel: ObservableObject {
         version = await HandBrakeCLI.version()
         presets = await Self.loadAllPresets()
         let preferred = presets.first { $0.id == lastPreset }
-            ?? (isAppleSilicon ? presets.first { $0.name == "H.265 Apple VideoToolbox 1080p" } : nil)
+            ?? Hardware.preferredPreset(in: presets)
             ?? presets.first
         selectedPresetID = preferred?.id ?? ""
     }
@@ -57,7 +54,7 @@ final class AppModel: ObservableObject {
     private func presetChanged() {
         guard let p = selectedPreset else { return }
         lastPreset = p.id
-        if !queue.processing { queue.concurrency = p.isVideoToolbox ? 2 : 1 }
+        if !queue.processing { queue.concurrency = Hardware.defaultConcurrency(for: p) }
     }
 
     static func langs(_ s: String) -> [String] {
