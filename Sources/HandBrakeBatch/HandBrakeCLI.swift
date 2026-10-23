@@ -20,10 +20,13 @@ enum HandBrakeCLI {
     static var path: String? {
         let env = ProcessInfo.processInfo.environment
         if let p = env["HANDBRAKECLI"], FileManager.default.isExecutableFile(atPath: p) { return p }
-        var cands = ["/opt/homebrew/bin/HandBrakeCLI", "/usr/local/bin/HandBrakeCLI"]
+        var cands = [bundledPath, "/opt/homebrew/bin/HandBrakeCLI", "/usr/local/bin/HandBrakeCLI"]
         cands += (env["PATH"] ?? "").split(separator: ":").map { "\($0)/HandBrakeCLI" }
         return cands.first { FileManager.default.isExecutableFile(atPath: $0) }
     }
+
+    /// The copy shipped inside the app (Contents/Resources/bin), preferred over Homebrew.
+    static var bundledPath: String { Bundle.main.resourceURL!.appendingPathComponent("bin/HandBrakeCLI").path }
 
     /// Runs the CLI to completion off the main thread; returns (stdout, stderr). No timeout.
     static func run(_ args: [String]) async -> (String, String) {
@@ -52,8 +55,9 @@ enum HandBrakeCLI {
 
     static func version() async -> String {
         let (o, e) = await run(["--version"])
-        return (o + "\n" + e).split(separator: "\n").map(String.init)
-            .first { $0.hasPrefix("HandBrake ") } ?? "HandBrakeCLI not found"
+        guard let v = (o + "\n" + e).split(separator: "\n").map(String.init).first(where: { $0.hasPrefix("HandBrake ") })
+        else { return "HandBrakeCLI not found" }
+        return v + (path == bundledPath ? " (bundled)" : " (\(path ?? ""))")
     }
 
     /// Built-in presets parsed from `HandBrakeCLI --preset-list`.

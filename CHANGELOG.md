@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0 (2026-10-22)
+
+- HandBrake Batch now comes with HandBrake's own command-line encoder (HandBrakeCLI 1.11.2) built in, so a new Mac no longer needs Homebrew or a separate HandBrakeCLI install. Just drag the app to Applications.
+- The bundled copy is the official, unmodified universal build from HandBrake (it runs natively on Apple Silicon and Intel). It is used first. If it is ever missing, the app still falls back to a HandBrakeCLI from Homebrew.
+- The window (next to "HandBrakeCLI") and the command-line test mode now show which copy is in use, for example "HandBrake 1.11.2 (bundled)" or the path of the Homebrew copy.
+- The app is bigger now (about 114 MB instead of 1.4 MB) because it carries the encoder. HandBrake's GPL-2 license text is included inside the app.
+
 ## 1.2.2 (2026-10-22)
 
 - On Intel Macs, the "YouTube Renders – Fast (Hardware)" preset now encodes in one pass instead of two, so each file is only processed once. It uses about 9.5 Mbps for 1080p video, and more for 1440p and 4K. Apple Silicon Macs are unchanged.

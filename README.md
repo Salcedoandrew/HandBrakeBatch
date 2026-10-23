@@ -6,7 +6,10 @@ A native macOS (Swift/SwiftUI) rewrite of [HandBrakeBatch](https://github.com/ta
 
 ## Requirements
 - macOS 13 or later (universal: Apple Silicon + Intel)
-- HandBrakeCLI: `brew install handbrake` (found in /opt/homebrew/bin, /usr/local/bin, `$PATH`, or `$HANDBRAKECLI`)
+- Nothing else: since 1.3.0 the app ships with the official HandBrakeCLI (1.11.2, universal) inside
+  `Contents/Resources/bin/`, so you no longer need Homebrew or `brew install handbrake`. If the bundled copy is missing,
+  it falls back to /opt/homebrew/bin, /usr/local/bin, or `$PATH`; `$HANDBRAKECLI` overrides everything.
+  The copy in use is shown in the window, e.g. "HandBrake 1.11.2 (bundled)".
 
 ## Build and install
 Only the Xcode Command Line Tools are needed.
@@ -14,7 +17,10 @@ Only the Xcode Command Line Tools are needed.
 ```sh
 ./build.sh            # builds build/HandBrake Batch.app (ad-hoc signed)
 ./build.sh --install  # also copies it to /Applications
+./build.sh --dmg      # also makes build/HandBrake-Batch-<version>-universal.dmg
 ```
+`build.sh` downloads HandBrakeCLI-1.11.2.dmg from HandBrake's GitHub release once, checks its SHA-256 against the
+official one, caches it in `.cache/` (not in git), and copies the binary plus HandBrake's license (GPL-2.0) into the app.
 
 ## Features
 - Presets: HandBrake's built-in presets (from `HandBrakeCLI --preset-list`, used with `-Z`), your presets from
@@ -75,4 +81,5 @@ PSNR-Y is against the source, higher is better.
   (two passes) on Intel Quick Sync. On the 2018 MacBook Pro this ran at ~50 fps vs ~30 fps for x264 medium on a 1080p clip.
 
 ## License
-GPL-3.0, like the original HandBrakeBatch. See LICENSE.
+GPL-3.0, like the original HandBrakeBatch. See LICENSE. The bundled HandBrakeCLI is HandBrake's own unmodified build, licensed GPL-2.0
+(its COPYING, LICENSE, and source location are in `Contents/Resources/HandBrakeCLI-license/`).
