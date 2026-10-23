@@ -13,6 +13,7 @@
   <key>LSMinimumSystemVersion</key><string>13.0</string>
   <key>NSHighResolutionCapable</key><true/>
   <key>NSPrincipalClass</key><string>NSApplication</string>
+  <key>NSHumanReadableCopyright</key><string>© 2026 Andrew Salcedo. Based on HandBrakeBatch by Cesare Tagliaferri.</string>
   <key>LSApplicationCategoryType</key><string>public.app-category.video</string>
 </dict>
 </plist>

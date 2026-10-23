@@ -2,6 +2,9 @@
 
 # HandBrake Batch
 
+Maintained and rewritten by Andrew Salcedo ([github.com/Salcedoandrew](https://github.com/Salcedoandrew)).
+The original HandBrakeBatch by Cesare Tagliaferri ([taglia/handbrakebatch](https://github.com/taglia/handbrakebatch)) is no longer maintained.
+
 A native macOS (Swift/SwiftUI) rewrite of [HandBrakeBatch](https://github.com/taglia/handbrakebatch): drop a pile of videos on the window and convert them all with HandBrake.
 
 ## Requirements

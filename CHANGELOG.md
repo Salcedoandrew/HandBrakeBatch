@@ -6,6 +6,7 @@
 - The bundled copy is the official, unmodified universal build from HandBrake (it runs natively on Apple Silicon and Intel). It is used first. If it is ever missing, the app still falls back to a HandBrakeCLI from Homebrew.
 - The window (next to "HandBrakeCLI") and the command-line test mode now show which copy is in use, for example "HandBrake 1.11.2 (bundled)" or the path of the Homebrew copy.
 - The app is bigger now (about 114 MB instead of 1.4 MB) because it carries the encoder. HandBrake's GPL-2 license text is included inside the app.
+- Added credits: the About box and the README now say the app is maintained and rewritten by Andrew Salcedo, based on the original HandBrakeBatch by Cesare Tagliaferri, which is no longer maintained.
 
 ## 1.2.2 (2026-10-22)
 
