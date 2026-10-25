@@ -1,10 +1,14 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-struct ContentView: View {
+public struct ContentView: View {
     @EnvironmentObject var model: AppModel
     @ObservedObject var queue: QueueManager
     @State private var dropTargeted = false
+
+    public init(queue: QueueManager) {
+        self.queue = queue
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {

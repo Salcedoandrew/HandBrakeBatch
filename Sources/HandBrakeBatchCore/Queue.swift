@@ -45,7 +45,7 @@ enum Savings {
 struct QueueSnapshot: Codable { var jobs: [Job]; var processing: Bool; var concurrency: Int }
 
 @MainActor
-final class QueueManager: ObservableObject {
+public final class QueueManager: ObservableObject {
     @Published var jobs: [Job] = []
     @Published var processing = false
     @Published var concurrency = 1
@@ -268,12 +268,12 @@ final class QueueManager: ObservableObject {
     }
 }
 
-enum Notifier {
-    static func requestAuth() {
+public enum Notifier {
+    public static func requestAuth() {
         guard Bundle.main.bundleIdentifier != nil else { return }
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
     }
-    static func post(_ title: String, _ body: String) {
+    public static func post(_ title: String, _ body: String) {
         guard Bundle.main.bundleIdentifier != nil else { return }
         let c = UNMutableNotificationContent(); c.title = title; c.body = body; c.sound = .default
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: UUID().uuidString, content: c, trigger: nil))

@@ -2,7 +2,7 @@ import Foundation
 import SwiftUI
 
 @MainActor
-final class AppModel: ObservableObject {
+public final class AppModel: ObservableObject {
     @Published var version = "Checking HandBrakeCLI…"
     @Published var presets: [HBPreset] = []
     @Published var selectedPresetID: String = "" { didSet { presetChanged() } }
@@ -14,12 +14,12 @@ final class AppModel: ObservableObject {
     @AppStorage("notify") var notify = true { didSet { queue.notify = notify } }
     @AppStorage("sleepWhenDone") var sleepWhenDone = false { didSet { queue.sleepWhenDone = sleepWhenDone } }
     @AppStorage("lastPreset") var lastPreset = ""
-    let queue = QueueManager()
+    public let queue = QueueManager()
     var isAppleSilicon: Bool { Hardware.isAppleSilicon }
 
     var selectedPreset: HBPreset? { presets.first { $0.id == selectedPresetID } }
 
-    init() {
+    public init() {
         queue.notify = notify; queue.sleepWhenDone = sleepWhenDone
         queue.restore()
     }

@@ -3,8 +3,8 @@ import Foundation
 /// Headless mode that drives the same QueueManager the GUI uses.
 /// HandBrake\ Batch --list-presets
 /// HandBrake\ Batch --cli-test --preset "<name>" [--out DIR] [--audio eng] [--subs eng] FILE...
-enum CLIMode {
-    static func run(_ argv: [String]) -> Never {
+public enum CLIMode {
+    public static func run(_ argv: [String]) -> Never {
         var presetName = "", outDir: String?, audio = "", subs = "", files: [String] = []
         var i = 0
         while i < argv.count {
