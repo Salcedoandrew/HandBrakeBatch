@@ -22,7 +22,7 @@ public struct ContentView: View {
         .frame(minWidth: 760, minHeight: 520)
         .task { await model.load() }
         .sheet(isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })) {
-            if let e = editing { PresetEditor(p: e) { saved in editing = nil; if saved { Task { await model.load() } } } }
+            if let e = editing { PresetEditor(p: e) { saved in editing = nil; if saved { Task { await model.load(); if let n = EditedPresets.lastSaved { model.selectedPresetID = EditedPresets.file + "|" + n } } } } }
         }
     }
 

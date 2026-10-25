@@ -15,7 +15,8 @@ enum EditedPresets {
         let o: [String: Any] = ["PresetList": l, "VersionMajor": 66, "VersionMinor": 0, "VersionMicro": 0]
         try? JSONSerialization.data(withJSONObject: o, options: [.prettyPrinted, .sortedKeys]).write(to: URL(fileURLWithPath: file))
     }
-    static func save(_ p: [String: Any]) { write(list().filter { $0["PresetName"] as? String != p["PresetName"] as? String } + [p]) }
+    static var lastSaved: String?
+    static func save(_ p: [String: Any]) { lastSaved = p["PresetName"] as? String; write(list().filter { $0["PresetName"] as? String != p["PresetName"] as? String } + [p]) }
     static func delete(_ name: String) { write(list().filter { $0["PresetName"] as? String != name }) }
     /// Full settings of any preset via `HandBrakeCLI --preset-export`.
     static func export(_ p: HBPreset) async -> [String: Any]? {
