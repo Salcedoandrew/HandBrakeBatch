@@ -83,6 +83,30 @@ PSNR-Y is against the source, higher is better.
 - On Intel Macs, VideoToolbox does not support constant quality, so HandBrake falls back to a 9 Mbps average bitrate
   (two passes) on Intel Quick Sync. On the 2018 MacBook Pro this ran at ~50 fps vs ~30 fps for x264 medium on a 1080p clip.
 
+## Troubleshooting
+
+**"HandBrakeCLI not found" in the window.** The app couldn't find an
+encoder. The copy bundled inside the app is tried first, then
+`/opt/homebrew/bin`, `/usr/local/bin`, and `$PATH`; `$HANDBRAKECLI`
+overrides everything. Rebuilding with `./build.sh` re-bundles the
+official copy, or install one with `brew install handbrake`, or point
+`$HANDBRAKECLI` at the copy you want.
+
+**macOS blocks the app on first launch.** The app is ad-hoc signed,
+not signed with an Apple Developer ID. Right-click it and choose
+**Open**, or run:
+
+```sh
+xattr -dr com.apple.quarantine "/Applications/HandBrake Batch.app"
+```
+
+**The app quit or crashed mid-batch.** The queue is saved to
+`~/Library/Application Support/HandBrake Batch/queue.json`, so
+reopening the app resumes where it left off: interrupted jobs go back
+to pending and their partial files are removed. Each job writes its
+own log to `~/Library/Logs/HandBrake Batch/` — check the log for the
+failed job first.
+
 ## License
 GPL-3.0, like the original HandBrakeBatch. See LICENSE. The bundled HandBrakeCLI is HandBrake's own unmodified build, licensed GPL-2.0
 (its COPYING, LICENSE, and source location are in `Contents/Resources/HandBrakeCLI-license/`).

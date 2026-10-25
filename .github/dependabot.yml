@@ -1,0 +1,12 @@
+version: 2
+updates:
+  # Maintain dependencies for GitHub Actions.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+
+  # No other ecosystem: the app has no SwiftPM dependencies
+  # (Package.swift lists no dependencies) and no other manifest
+  # for Dependabot to watch.

@@ -1,0 +1,29 @@
+name: CI
+
+# Builds the SwiftPM package. Scoped to `rewrite`, the active branch:
+# `master` holds the legacy Objective-C app, which has no Package.swift
+# and would fail `swift build`.
+on:
+  push:
+    branches: [ "rewrite" ]
+  pull_request:
+    branches: [ "rewrite" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Build
+        run: swift build
+
+      - name: Test
+        run: swift test

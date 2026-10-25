@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import HandBrakeBatchCore
 
 struct HandBrakeBatchApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var delegate
