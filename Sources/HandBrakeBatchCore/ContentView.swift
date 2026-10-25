@@ -10,7 +10,7 @@ public struct ContentView: View {
         self.queue = queue
     }
 
-    var body: some View {
+    public var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             settings
             Divider()
