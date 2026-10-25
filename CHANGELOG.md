@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Added a simple preset editor: "Edit Preset…" copies the selected preset so you can change its name, encoder, quality, max size, frame rate, audio bitrate and file format. Edited copies are saved in ~/Library/Application Support/HandBrake Batch/EditedPresets.json and appear first under "Edited". Added Delete (edited presets only) and Reload Presets buttons.
+- After you click Save in the preset editor, your new preset is now selected right away, so it's clear it saved.
 
 ## 1.3.0 (2026-10-22)
 
