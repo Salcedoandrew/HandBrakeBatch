@@ -5,6 +5,7 @@ public struct ContentView: View {
     @EnvironmentObject var model: AppModel
     @ObservedObject var queue: QueueManager
     @State private var dropTargeted = false
+    @State private var editing: [String: Any]? = nil
 
     public init(queue: QueueManager) {
         self.queue = queue
@@ -20,6 +21,9 @@ public struct ContentView: View {
         .padding()
         .frame(minWidth: 760, minHeight: 520)
         .task { await model.load() }
+        .sheet(isPresented: Binding(get: { editing != nil }, set: { if !$0 { editing = nil } })) {
+            if let e = editing { PresetEditor(p: e) { saved in editing = nil; if saved { Task { await model.load() } } } }
+        }
     }
 
     private var groupedCategories: [String] {
@@ -46,6 +50,10 @@ public struct ContentView: View {
                             }
                         }
                     }.labelsHidden().frame(maxWidth: 360)
+                    Button("Edit Preset…") { if let p = model.selectedPreset { Task { if var d = await EditedPresets.export(p) { d["PresetName"] = p.name + " (edited)"; editing = d } } } }
+                    Button("Delete") { if let p = model.selectedPreset { EditedPresets.delete(p.name); Task { await model.load() } } }
+                        .disabled(model.selectedPreset?.category != "Edited")
+                    Button("Reload Presets") { Task { await model.load() } }
                     if let p = model.selectedPreset, p.isVideoToolbox, Hardware.hasHardwareHEVC {
                         Text("VideoToolbox: hardware encode (\(Hardware.engineName))")
                             .font(.caption).padding(.horizontal, 6).padding(.vertical, 2)

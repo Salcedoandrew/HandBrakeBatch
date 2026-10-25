@@ -35,7 +35,7 @@ public final class AppModel: ObservableObject {
     }
 
     static func loadAllPresets() async -> [HBPreset] {
-        var all: [HBPreset] = []
+        var all = HandBrakeCLI.presets(fromFile: EditedPresets.file, category: "Edited")
         if let f = customPresetFile { all += HandBrakeCLI.presets(fromFile: f, category: "HandBrake Batch") }
         all += HandBrakeCLI.presets(fromFile: userPresetFile, category: "My Presets")
         all += await HandBrakeCLI.builtinPresets()
