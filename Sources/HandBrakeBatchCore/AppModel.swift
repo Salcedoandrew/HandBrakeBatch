@@ -57,7 +57,7 @@ public final class AppModel: ObservableObject {
         if !queue.processing { queue.concurrency = Hardware.defaultConcurrency(for: p) }
     }
 
-    static func langs(_ s: String) -> [String] {
+    nonisolated static func langs(_ s: String) -> [String] {
         s.split(whereSeparator: { $0 == "," || $0 == " " }).map { $0.lowercased() }.filter { !$0.isEmpty }
     }
 
@@ -79,7 +79,7 @@ public final class AppModel: ObservableObject {
         }
     }
 
-    static func outputPath(for input: String, dir: String, ext: String, reserved: Set<String> = []) -> String {
+    nonisolated static func outputPath(for input: String, dir: String, ext: String, reserved: Set<String> = []) -> String {
         let base = ((input as NSString).lastPathComponent as NSString).deletingPathExtension
         var candidate = (dir as NSString).appendingPathComponent("\(base).\(ext)")
         var n = 1
