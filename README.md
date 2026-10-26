@@ -2,19 +2,27 @@
 
 # HandBrake Batch
 
+### A native macOS Swift/SwiftUI rewrite: drop videos on the window and convert them all with HandBrake.
+
+[![GitHub release](https://img.shields.io/github/v/release/Salcedoandrew/HandBrakeBatch)](https://github.com/Salcedoandrew/HandBrakeBatch/releases/latest) [![License: GPL-3.0](https://img.shields.io/github/license/Salcedoandrew/HandBrakeBatch)](LICENSE) [![Top language: Swift](https://img.shields.io/github/languages/top/Salcedoandrew/HandBrakeBatch)](https://github.com/Salcedoandrew/HandBrakeBatch) [![Last commit](https://img.shields.io/github/last-commit/Salcedoandrew/HandBrakeBatch/rewrite)](https://github.com/Salcedoandrew/HandBrakeBatch/commits/rewrite)
+
+[About](#-about) | [Requirements](#-requirements) | [Build and install](#-build-and-install) | [Features](#-features) | [Command-line test mode](#-command-line-test-mode) | [YouTube Renders preset](#-the-youtube-renders-stepbyclick-preset) | [Troubleshooting](#-troubleshooting) | [License](#-license)
+
+## 🎯 About
+
 Maintained and rewritten by Andrew Salcedo ([github.com/Salcedoandrew](https://github.com/Salcedoandrew)).
 The original HandBrakeBatch by Cesare Tagliaferri ([taglia/handbrakebatch](https://github.com/taglia/handbrakebatch)) is no longer maintained.
 
 A native macOS (Swift/SwiftUI) rewrite of [HandBrakeBatch](https://github.com/taglia/handbrakebatch): drop a pile of videos on the window and convert them all with HandBrake.
 
-## Requirements
+## ✅ Requirements
 - macOS 13 or later (universal: Apple Silicon + Intel)
 - Nothing else: since 1.3.0 the app ships with the official HandBrakeCLI (1.11.2, universal) inside
   `Contents/Resources/bin/`, so you no longer need Homebrew or `brew install handbrake`. If the bundled copy is missing,
   it falls back to /opt/homebrew/bin, /usr/local/bin, or `$PATH`; `$HANDBRAKECLI` overrides everything.
   The copy in use is shown in the window, e.g. "HandBrake 1.11.2 (bundled)".
 
-## Build and install
+## 🏁 Build and install
 Only the Xcode Command Line Tools are needed.
 
 ```sh
@@ -25,7 +33,7 @@ Only the Xcode Command Line Tools are needed.
 `build.sh` downloads HandBrakeCLI-1.11.2.dmg from HandBrake's GitHub release once, checks its SHA-256 against the
 official one, caches it in `.cache/` (not in git), and copies the binary plus HandBrake's license (GPL-2.0) into the app.
 
-## Features
+## ✨ Features
 - Presets: HandBrake's built-in presets (from `HandBrakeCLI --preset-list`, used with `-Z`), your presets from
   `~/Library/Application Support/HandBrake/UserPresets.json`, and the bundled `Resources/YouTubeRenders.json`
   (both used with `--preset-import-file`). VideoToolbox presets are marked ⚡ on Apple Silicon.
@@ -38,7 +46,7 @@ official one, caches it in `.cache/` (not in git), and copies the binary plus Ha
 - Optional timestamp preservation, notification on completion, and sleep when done (`pmset sleepnow`).
 - Per-job logs in `~/Library/Logs/HandBrake Batch/`.
 
-## Command-line test mode
+## 🖥️ Command-line test mode
 The same binary can run the queue headlessly:
 
 ```sh
@@ -47,7 +55,7 @@ B="/Applications/HandBrake Batch.app/Contents/MacOS/HandBrake Batch"
 "$B" --cli-test --preset "H.265 Apple VideoToolbox 1080p" --out ~/Movies --audio eng clip.mov
 ```
 
-## The "YouTube Renders (StepByClick)" preset
+## 🎬 The "YouTube Renders (StepByClick)" preset
 From StepByClick, "Best HandBrake Settings for High Quality Output on PC (2026)" (https://www.youtube.com/watch?v=kjui8y6Utv0):
 
 | Setting | Value | Source |
@@ -83,7 +91,16 @@ PSNR-Y is against the source, higher is better.
 - On Intel Macs, VideoToolbox does not support constant quality, so HandBrake falls back to a 9 Mbps average bitrate
   (two passes) on Intel Quick Sync. On the 2018 MacBook Pro this ran at ~50 fps vs ~30 fps for x264 medium on a 1080p clip.
 
-## Troubleshooting
+## 🚀 Main Technologies
+
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/swift/swift-original.svg" alt="Swift logo" width="48" height="48"> <img src="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/apple/apple-original.svg" alt="Apple logo" width="48" height="48">
+
+**See more**
+
+- [Swift / SwiftUI](https://developer.apple.com/swift/) — the native macOS app.
+- [HandBrakeCLI](https://handbrake.fr/) — the encoder bundled inside the app.
+
+## 🐛 Troubleshooting
 
 **"HandBrakeCLI not found" in the window.** The app couldn't find an
 encoder. The copy bundled inside the app is tried first, then
@@ -107,6 +124,10 @@ to pending and their partial files are removed. Each job writes its
 own log to `~/Library/Logs/HandBrake Batch/` — check the log for the
 failed job first.
 
-## License
+## 📝 License
 GPL-3.0, like the original HandBrakeBatch. See LICENSE. The bundled HandBrakeCLI is HandBrake's own unmodified build, licensed GPL-2.0
 (its COPYING, LICENSE, and source location are in `Contents/Resources/HandBrakeCLI-license/`).
+
+Made with ❤️ by [Andrew Salcedo](https://github.com/Salcedoandrew)
+
+[Back to top](#handbrake-batch)
