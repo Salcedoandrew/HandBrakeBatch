@@ -20,13 +20,13 @@ enum HandBrakeCLI {
     static var path: String? {
         let env = ProcessInfo.processInfo.environment
         if let p = env["HANDBRAKECLI"], FileManager.default.isExecutableFile(atPath: p) { return p }
-        var cands = [bundledPath, "/opt/homebrew/bin/HandBrakeCLI", "/usr/local/bin/HandBrakeCLI"]
+        var cands = [bundledPath].compactMap { $0 } + ["/opt/homebrew/bin/HandBrakeCLI", "/usr/local/bin/HandBrakeCLI"]
         cands += (env["PATH"] ?? "").split(separator: ":").map { "\($0)/HandBrakeCLI" }
         return cands.first { FileManager.default.isExecutableFile(atPath: $0) }
     }
 
     /// The copy shipped inside the app (Contents/Resources/bin), preferred over Homebrew.
-    static var bundledPath: String { Bundle.main.resourceURL!.appendingPathComponent("bin/HandBrakeCLI").path }
+    static var bundledPath: String? { Bundle.main.resourceURL?.appendingPathComponent("bin/HandBrakeCLI").path }
 
     /// Runs the CLI to completion off the main thread; returns (stdout, stderr). No timeout.
     static func run(_ args: [String]) async -> (String, String) {

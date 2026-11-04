@@ -4,16 +4,20 @@ import Foundation
 /// HandBrake\ Batch --list-presets
 /// HandBrake\ Batch --cli-test --preset "<name>" [--out DIR] [--audio eng] [--subs eng] FILE...
 public enum CLIMode {
+    private static func usage() {
+        print("usage: HandBrake Batch --cli-test --preset \"<name>\" [--out DIR] [--audio eng] [--subs eng] FILE...")
+        print("       HandBrake Batch --list-presets")
+    }
     public static func run(_ argv: [String]) -> Never {
         var presetName = "", outDir: String?, audio = "", subs = "", files: [String] = []
         var i = 0
         while i < argv.count {
             let a = argv[i]
             switch a {
-            case "--preset": i += 1; presetName = argv[i]
-            case "--out": i += 1; outDir = argv[i]
-            case "--audio": i += 1; audio = argv[i]
-            case "--subs": i += 1; subs = argv[i]
+            case "--preset": guard i + 1 < argv.count else { usage(); exit(2) }; i += 1; presetName = argv[i]
+            case "--out": guard i + 1 < argv.count else { usage(); exit(2) }; i += 1; outDir = argv[i]
+            case "--audio": guard i + 1 < argv.count else { usage(); exit(2) }; i += 1; audio = argv[i]
+            case "--subs": guard i + 1 < argv.count else { usage(); exit(2) }; i += 1; subs = argv[i]
             case "--cli-test", "--list-presets": break
             default: files.append(URL(fileURLWithPath: a).standardizedFileURL.path)
             }

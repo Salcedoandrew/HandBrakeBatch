@@ -13,7 +13,7 @@ enum EditedPresets {
     static func write(_ l: [[String: Any]]) {
         try? FileManager.default.createDirectory(atPath: (file as NSString).deletingLastPathComponent, withIntermediateDirectories: true)
         let o: [String: Any] = ["PresetList": l, "VersionMajor": 66, "VersionMinor": 0, "VersionMicro": 0]
-        try? JSONSerialization.data(withJSONObject: o, options: [.prettyPrinted, .sortedKeys]).write(to: URL(fileURLWithPath: file))
+        try? JSONSerialization.data(withJSONObject: o, options: [.prettyPrinted, .sortedKeys]).write(to: URL(fileURLWithPath: file), options: .atomic)
     }
     static var lastSaved: String?
     static func save(_ p: [String: Any]) { lastSaved = p["PresetName"] as? String; write(list().filter { $0["PresetName"] as? String != p["PresetName"] as? String } + [p]) }

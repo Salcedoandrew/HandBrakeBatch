@@ -190,7 +190,7 @@ public final class QueueManager: ObservableObject {
             Task { @MainActor in
                 out.fileHandleForReading.readabilityHandler = nil
                 err.fileHandleForReading.readabilityHandler = nil
-                log?.write(Data("\n[exit \(code)]\n".utf8)); try? log?.close()
+                lock.lock(); log?.write(Data("\n[exit \(code)]\n".utf8)); try? log?.close(); lock.unlock()
                 mgr.completed(job, code: code)
             }
         }
