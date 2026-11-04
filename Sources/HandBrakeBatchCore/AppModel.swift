@@ -5,7 +5,7 @@ import SwiftUI
 public final class AppModel: ObservableObject {
     @Published var version = "Checking HandBrakeCLI…"
     @Published var presets: [HBPreset] = []
-    @Published var selectedPresetID: String = "" { didSet { presetChanged() } }
+    @Published var selectedPresetID: String = "" { didSet { presetChanged(from: oldValue) } }
     @AppStorage("outputDir") var outputDir = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent("Movies").path
     @AppStorage("outputExt") var outputExt = "mp4"
     @AppStorage("audioLangs") var audioLangs = "eng"
@@ -51,10 +51,14 @@ public final class AppModel: ObservableObject {
         selectedPresetID = preferred?.id ?? ""
     }
 
-    private func presetChanged() {
+    private func presetChanged(from oldID: String) {
         guard let p = selectedPreset else { return }
         lastPreset = p.id
-        if !queue.processing { queue.concurrency = Hardware.defaultConcurrency(for: p) }
+        // Only adopt the hardware default when the new preset's encoder family changes it;
+        // a plain re-select or Reload Presets must not wipe the user's Parallel jobs setting.
+        let newDefault = Hardware.defaultConcurrency(for: p)
+        let oldDefault = presets.first { $0.id == oldID }.map { Hardware.defaultConcurrency(for: $0) }
+        if !queue.processing, oldDefault != newDefault { queue.concurrency = newDefault }
     }
 
     nonisolated static func langs(_ s: String) -> [String] {
