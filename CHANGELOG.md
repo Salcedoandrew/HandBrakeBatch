@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.4.1 (2026-11-08)
+- Fixed: passing a CLI flag without a value no longer crashes the app.
+- Fixed: picking a preset no longer silently wipes the "Parallel jobs" setting.
+- Fixed: a race in the log writer (FileHandle) that could corrupt or lose log output.
+
 ## 1.4.0 (2026-10-24)
 - Added a simple preset editor: "Edit Preset…" copies the selected preset so you can change its name, encoder, quality, max size, frame rate, audio bitrate and file format. Edited copies are saved in ~/Library/Application Support/HandBrake Batch/EditedPresets.json and appear first under "Edited". Added Delete (edited presets only) and Reload Presets buttons.
 - After you click Save in the preset editor, your new preset is now selected right away, so it's clear it saved.
